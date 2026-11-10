@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pöhler & Poeten – Das große Bolzplatz- & Kneipenquiz</title>
+  <meta name="description" content="Teste dein Fußballwissen im Pöhler & Poeten Quiz. Asche, Flutlicht, Kreisliga und Kult!">
+  
+  <style>
+    :root {
+      --bg-dark: #0b0f17;
+      --card-bg: rgba(22, 28, 39, 0.94);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --pitch-green: #10b981;
+      --pitch-green-glow: rgba(16, 185, 129, 0.35);
+      --floodlight-gold: #facc15;
+      --floodlight-glow: rgba(250, 204, 21, 0.25);
+      --red-card: #ef4444;
+      --red-card-glow: rgba(239, 68, 68, 0.3);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.12) 0%, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    .stadium-font {
+      font-family: "Arial Black", "Impact", "Franklin Gothic Heavy", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 28px 24px 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      position: relative;
+    }
+
+    .sound-toggle {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .sound-toggle:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(250, 204, 21, 0.12);
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      color: var(--floodlight-gold);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .brand-title {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .brand-title span {
+      color: var(--floodlight-gold);
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pitch-green), var(--floodlight-gold));
+      width: 0%;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.35s ease forwards;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-banner {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 24px 18px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .hero-icon {
+      font-size: 42px;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .hero-headline {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      margin: 18px 0 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 16px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--floodlight-gold);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .question-category {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--pitch-green);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #fff;
+      margin-bottom: 22px;
+      min-height: 52px;
+    }
+
+    .answers-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 16px 18px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.18s ease;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .answer-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .answer-letter {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+    }
+
+    .answer-btn.correct {
+      background: rgba(16, 185, 129, 0.15) !important;
+      border-color: var(--pitch-green) !important;
+      color: #fff;
+      box-shadow: 0 0 20px var(--pitch-green-glow);
+    }
+
+    .answer-btn.correct .answer-letter {
+      background: var(--pitch-green);
+      color: #0b0f17;
+    }
+
+    .answer-btn.wrong {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border-color: var(--red-card) !important;
+      color: #fff;
+      box-shadow: 0 0 20px var(--red-card-glow);
+      animation: shake 0.35s ease;
+    }
+
+    .answer-btn.wrong .answer-letter {
+      background: var(--red-card);
+      color: #fff;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+
+    .explanation-box {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.45;
+      display: none;
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 3px solid var(--floodlight-gold);
+    }
+
+    .explanation-box.visible {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--floodlight-gold), #eab308);
+      color: #0b0f17;
+      border: none;
+      padding: 17px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      box-shadow: 0 10px 25px rgba(234, 179, 8, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .result-badge-wrap {
+      text-align: center;
+      padding: 18px 0;
+    }
+
+    .result-trophy {
+      font-size: 56px;
+      margin-bottom: 6px;
+      display: inline-block;
+      animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .result-score {
+      font-size: 42px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .result-score span {
+      color: var(--floodlight-gold);
+    }
+
+    .result-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-top: 8px;
+      color: #fff;
+    }
+
+    .result-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 8px auto 20px;
+      line-height: 1.45;
+      max-width: 360px;
+    }
+
+    .upsell-box {
+      background: linear-gradient(145deg, rgba(250, 204, 21, 0.08), rgba(16, 185, 129, 0.05));
+      border: 1px solid rgba(250, 204, 21, 0.25);
+      border-radius: 20px;
+      padding: 20px 18px;
+      margin-top: 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .upsell-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--floodlight-gold);
+      color: #0b0f17;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .upsell-title {
+      font-size: 17px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .upsell-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #0b0f17;
+      border: none;
+    }
+
+    .legal-footer {
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+    }
+
+    .legal-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .legal-link:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .legal-separator {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #161c27;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 440px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-main);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <button id="soundToggle" class="sound-toggle" title="Sound an/aus">🔊</button>
+
+    <div class="brand-header">
+      <div class="badge-pill stadium-font">Offizielles Community-Quiz</div>
+      <h1 class="brand-title stadium-font">PÖHLER <span>&</span> POETEN</h1>
+      <p class="brand-subtitle">Asche, Flutlicht & Legendenwissen</p>
+    </div>
+
+    <div class="progress-bar-wrap" id="progressWrap" style="display: none;">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+
+    <!-- SCREEN 1: START SCREEN -->
+    <div id="startScreen" class="screen active">
+      <div class="hero-banner">
+        <div class="hero-icon">⚽</div>
+        <h2 class="hero-headline stadium-font">Bist du Kreisliga oder Champions League?</h2>
+        <p class="hero-desc">Beweise dein Fußballwissen in 5 knackigen Fragen. Kein Weichspüler, echte Bolzplatz-Trivia!</p>
+        
+        <div class="stats-row">
+          <div class="stat-item">
+            <div class="stat-value stadium-font">5</div>
+            <div class="stat-label">Fragen</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value stadium-font">~2 Min</div>
+            <div class="stat-label">Dauer</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value stadium-font">100%</div>
+            <div class="stat-label">Bolzplatz</div>
+          </div>
+        </div>
+      </div>
+
+      <button id="startBtn" class="btn-primary stadium-font">
+        <span>Anpfiff – Quiz Starten</span>
+        <span>➔</span>
+      </button>
+    </div>
+
+    <!-- SCREEN 2: QUESTION SCREEN -->
+    <div id="quizScreen" class="screen">
+      <div id="questionCategory" class="question-category stadium-font">Kategorie: Kreisliga-Kult</div>
+      <div id="questionText" class="question-text">Frage lädt...</div>
+
+      <div id="answersGrid" class="answers-grid"></div>
+
+      <div id="explanationBox" class="explanation-box"></div>
+
+      <button id="nextBtn" class="btn-primary stadium-font" style="display: none;">
+        <span>Nächste Frage</span>
+        <span>➔</span>
+      </button>
+    </div>
+
+    <!-- SCREEN 3: RESULT SCREEN -->
+    <div id="resultScreen" class="screen">
+      <div class="result-badge-wrap">
+        <div id="resultIcon" class="result-trophy">🏆</div>
+        <div class="result-score stadium-font"><span id="finalScore">0</span> / 5</div>
+        <h2 id="resultTitle" class="result-title stadium-font">Auswertung</h2>
+        <p id="resultDesc" class="result-desc">Beschreibung lädt...</p>
+      </div>
+
+      <button id="whatsappShareBtn" class="btn-primary btn-whatsapp stadium-font">
+        <span>📲 Auf WhatsApp mit Kumpels teilen</span>
+      </button>
+
+      <button id="replayBtn" class="btn-secondary stadium-font" style="margin-top: 10px;">
+        <span>🔄 Noch einmal spielen</span>
+      </button>
+
+      <div class="upsell-box">
+        <span class="upsell-tag stadium-font">Demnächst</span>
+        <h3 class="upsell-title stadium-font">Das Kartenspiel für die Kabine</h3>
+        <p class="upsell-desc">Hol dir 110 handverlesene Fragen für deine Mannschaftsfahrt, den Bus oder den Kneipenabend.</p>
+        <a href="https://www.youtube.com/@poehlerundpoeten" target="_blank" class="btn-secondary stadium-font" style="background: rgba(250, 204, 21, 0.15); border-color: rgba(250, 204, 21, 0.4); color: var(--floodlight-gold);">
+          <span>📺 Pöhler & Poeten auf YouTube ansehen</span>
+        </a>
+      </div>
+    </div>
+
+    <footer class="legal-footer">
+      <a href="https://dein-impressum.de/poehlerpoeten" target="_blank" rel="noopener noreferrer" class="legal-link">Impressum</a>
+      <span class="legal-separator">•</span>
+      <a id="openPrivacyModal" class="legal-link">Datenschutz</a>
+    </footer>
+
+  </div>
+
+  <div id="privacyModal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title stadium-font">Datenschutzhinweise</h3>
+        <button id="closePrivacyModal" class="modal-close">&times;</button>
+      </div>
+      <p style="margin-bottom: 12px;"><strong>1. Verantwortlicher</strong><br>
+      Angaben zum Verantwortlichen findest du im <a href="https://dein-impressum.de/poehlerpoeten" target="_blank" style="color: var(--floodlight-gold);">Impressum</a>.</p>
+      
+      <p style="margin-bottom: 12px;"><strong>2. Keine Cookies & kein Tracking</strong><br>
+      Diese Webseite nutzt <strong>keine Tracking-Cookies</strong>, keine Analyse-Tools (wie Google Analytics) und keine Werbenetzwerke. Das Quiz läuft vollständig lokal in deinem Browser ab.</p>
+
+      <p style="margin-bottom: 12px;"><strong>3. Keine externen Schriften</strong><br>
+      Zur Gewährleistung des Datenschutzes werden keine Schriftarten von Drittanbietern dynamisch nachgeladen.</p>
+
+      <p style="margin-bottom: 12px;"><strong>4. Server-Logdateien</strong><br>
+      Beim Aufruf dieser Seite werden durch den Hosting-Provider technisch erforderliche Daten (wie IP-Adresse, Datum/Uhrzeit des Zugriffs, Browsertyp) verarbeitet (Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO).</p>
+
+      <button id="closePrivacyModalBtn" class="btn-secondary stadium-font" style="margin-top: 16px;">
+        Schließen
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let soundEnabled = true;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new AudioContext();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(150, now + 0.05);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'whistle') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(2600, now);
+          osc.frequency.setValueAtTime(2800, now + 0.08);
+          osc.frequency.setValueAtTime(2600, now + 0.14);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.28);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.28);
+        } else if (type === 'correct') {
+          [523.25, 659.25, 783.99].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+            gain.gain.setValueAtTime(0.18, now + idx * 0.09);
+            gain.gain.linearRampToValueAtTime(0.01, now + idx * 0.09 + 0.22);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.09);
+            osc.stop(now + idx * 0.09 + 0.22);
+          });
+        } else if (type === 'wrong') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.linearRampToValueAtTime(95, now + 0.25);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+      } catch (e) {
+        console.warn('Audio play error:', e);
+      }
+    }
+
+    document.getElementById('soundToggle').addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+    });
+
+    const questions = [
+      {
+        category: "Kreisliga & Bolzplatz",
+        question: "Wie viele Spieler müssen bei Spielbeginn mindestens auf dem Feld stehen, damit ein offizielles Fußballspiel angepfiffen werden darf?",
+        options: ["Mindestens 6 Spieler", "Mindestens 7 Spieler", "Mindestens 8 Spieler", "Mindestens 9 Spieler"],
+        correct: 1,
+        explanation: "Regelkunde: Laut DFB-Regeln darf eine Mannschaft das Spiel mit mindestens 7 Spielern (inkl. Torwart) beginnen oder fortsetzen."
+      },
+      {
+        category: "Historie & Kult",
+        question: "In welchem Jahr fand das legendäre DFB-Pokalfinale statt, in dem sich ein Spieler zur Verlängerung selbst einwechselte und das Siegtor schoss?",
+        options: ["1969", "1973", "1977", "1982"],
+        correct: 1,
+        explanation: "1973 im Düsseldorfer Rheinstadion: Zur Verlängerung ging Günter Netzer zu Trainer Hennes Weisweiler und schoss Gladbach zum 2:1-Sieg gegen Köln."
+      },
+      {
+        category: "Ruhrpott-Wissen",
+        question: "Was bedeutet das Ruhrpott-Wort 'Pöhlen' im ursprünglichen Wortsinn?",
+        options: ["Bier an der Bude trinken", "Hartes Grätschen auf Asche", "Fußballspielen / Kicken auf dem Bolzplatz", "Schiedsrichter anpöbeln"],
+        correct: 2,
+        explanation: "'Pöhlen' ist das klassische Ruhrpott-Synonym für das ungezwungene Kicken auf der Straße, der Wiese oder der roten Asche."
+      },
+      {
+        category: "Kurioses",
+        question: "Warum trug die deutsche Nationalmannschaft bei der WM 1954 in Bern revolutionäre Stollen an den Schuhen?",
+        options: ["Sie waren aus massivem Gold", "Adi Dassler erfand Schraubstollen für den nassen Rasen", "Sie waren doppelt so lang wie erlaubt", "Sie waren mit Dämpfungskissen gefedert"],
+        correct: 1,
+        explanation: "Adi Dassler rüstete die Herberger-Elf mit flexiblen Schraubstollen aus – bei einsetzendem Regen im Finale gegen Ungarn ein historischer Vorteil."
+      },
+      {
+        category: "Kabinengeflüster",
+        question: "Was gehört traditionell in jeder echten Amateurkabine zur Grundausstattung der 'Dritten Halbzeit'?",
+        options: ["Eiweißshakes und Chia-Samen", "Kasten Bier, Mettbrötchen & Fachsimpelei", "Vegane Haferriegel", "Eistonne und Yoga-Matten"],
+        correct: 1,
+        explanation: "Die Dritte Halbzeit ist heilig: Auf Asche verloren, aber an der Theke wird jeder Schuss noch einmal zum Weltklassetor verklärt."
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    const startScreen = document.getElementById('startScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+
+    const progressWrap = document.getElementById('progressWrap');
+    const progressBar = document.getElementById('progressBar');
+
+    const questionCategoryEl = document.getElementById('questionCategory');
+    const questionTextEl = document.getElementById('questionText');
+    const answersGridEl = document.getElementById('answersGrid');
+    const explanationBoxEl = document.getElementById('explanationBox');
+    const nextBtn = document.getElementById('nextBtn');
+
+    document.getElementById('startBtn').addEventListener('click', startQuiz);
+    document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+    document.getElementById('replayBtn').addEventListener('click', startQuiz);
+
+    function startQuiz() {
+      playSound('whistle');
+      currentQuestionIndex = 0;
+      score = 0;
+      answered = false;
+
+      startScreen.classList.remove('active');
+      resultScreen.classList.remove('active');
+      quizScreen.classList.add('active');
+      progressWrap.style.display = 'block';
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      answered = false;
+      const q = questions[currentQuestionIndex];
+
+      const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+
+      questionCategoryEl.textContent = `Kategorie: ${q.category}`;
+      questionTextEl.textContent = `${currentQuestionIndex + 1}. ${q.question}`;
+      explanationBoxEl.className = 'explanation-box';
+      explanationBoxEl.textContent = '';
+      nextBtn.style.display = 'none';
+
+      answersGridEl.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.options.forEach((optText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.innerHTML = `
+          <span class="answer-letter stadium-font">${letters[index]}</span>
+          <span>${optText}</span>
+        `;
+        btn.addEventListener('click', () => handleAnswer(index, btn));
+        answersGridEl.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedIndex, clickedBtn) {
+      if (answered) return;
+      answered = true;
+
+      const q = questions[currentQuestionIndex];
+      const buttons = answersGridEl.querySelectorAll('.answer-btn');
+      buttons.forEach(b => b.disabled = true);
+
+      if (selectedIndex === q.correct) {
+        score++;
+        clickedBtn.classList.add('correct');
+        playSound('correct');
+      } else {
+        clickedBtn.classList.add('wrong');
+        playSound('wrong');
+        buttons[q.correct].classList.add('correct');
+      }
+
+      explanationBoxEl.textContent = q.explanation;
+      explanationBoxEl.classList.add('visible');
+
+      nextBtn.style.display = 'flex';
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.innerHTML = '<span>Zur Auswertung</span> <span>🏆</span>';
+      } else {
+        nextBtn.innerHTML = '<span>Nächste Frage</span> <span>➔</span>';
+      }
+    }
+
+    function nextQuestion() {
+      playSound('click');
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      progressBar.style.width = '100%';
+      quizScreen.classList.remove('active');
+      resultScreen.classList.add('active');
+
+      document.getElementById('finalScore').textContent = score;
+      const iconEl = document.getElementById('resultIcon');
+      const titleEl = document.getElementById('resultTitle');
+      const descEl = document.getElementById('resultDesc');
+
+      if (score === 5) {
+        iconEl.textContent = '👑';
+        titleEl.textContent = 'Kabinenchef & Fußballgott!';
+        descEl.textContent = 'Bist du heimlich Bundesligatrainer? 5 von 5 Punkten – Respekt, du hast Asche im Blut und bist ein echter Pöhler!';
+        playSound('whistle');
+      } else if (score >= 3) {
+        iconEl.textContent = '⚽';
+        titleEl.textContent = 'Solider Sechser – Gras gefressen!';
+        descEl.textContent = `${score} von 5 Punkten! Kämpferisch top, die Standards sitzen. Noch 1-2 Taktikstunden an der Theke und du holst den Pott!`;
+        playSound('correct');
+      } else {
+        iconEl.textContent = '🪑';
+        titleEl.textContent = 'Ausgewechselt nach 20 Minuten!';
+        descEl.textContent = `${score} von 5 Punkten. Kein Beinbruch – erst einmal ein kaltes Bier, Stollenschuhe putzen und die nächste Runde nochmal angreifen!`;
+        playSound('click');
+      }
+
+      const shareText = encodeURIComponent(
+        `Ich habe im Pöhler & Poeten Quiz ${score}/5 Punkte geholt! ⚽🍺 Zeig mal, ob du mehr Ahnung hast als der Trainer: https://poehlerundpoeten.de`
+      );
+      document.getElementById('whatsappShareBtn').onclick = () => {
+        window.open(`https://api.whatsapp.com/send?text=${shareText}`, '_blank');
+      };
+    }
+
+    const privacyModal = document.getElementById('privacyModal');
+    document.getElementById('openPrivacyModal').addEventListener('click', () => {
+      privacyModal.classList.add('active');
+    });
+    const closeModal = () => privacyModal.classList.remove('active');
+    document.getElementById('closePrivacyModal').addEventListener('click', closeModal);
+    document.getElementById('closePrivacyModalBtn').addEventListener('click', closeModal);
+    privacyModal.addEventListener('click', (e) => {
+      if (e.target === privacyModal) closeModal();
+    });
+  </script>
+</body>
+</html>
