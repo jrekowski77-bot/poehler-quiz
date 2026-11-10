@@ -562,16 +562,16 @@
       <div class="hero-banner">
         <div class="hero-icon">⚽</div>
         <h2 class="hero-headline stadium-font">Bist du Kreisliga oder Champions League?</h2>
-        <p class="hero-desc">Beweise dein Fußballwissen in 5 knackigen Fragen. Kein Weichspüler, echte Bolzplatz-Trivia!</p>
+        <p class="hero-desc">Beweise dein Fußballwissen in 5 zufälligen Fragen. Jedes Spiel bringt neue Herausforderungen!</p>
         
         <div class="stats-row">
           <div class="stat-item">
-            <div class="stat-value stadium-font">5</div>
-            <div class="stat-label">Fragen</div>
+            <div class="stat-value stadium-font" id="poolCountStat">16</div>
+            <div class="stat-label">Fragen-Pool</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value stadium-font">~2 Min</div>
-            <div class="stat-label">Dauer</div>
+            <div class="stat-value stadium-font">5 / Runde</div>
+            <div class="stat-label">Zufällig</div>
           </div>
           <div class="stat-item">
             <div class="stat-value stadium-font">100%</div>
@@ -581,14 +581,14 @@
       </div>
 
       <button id="startBtn" class="btn-primary stadium-font">
-        <span>Anpfiff – Quiz Starten</span>
+        <span>Anpfiff – Runde Starten</span>
         <span>➔</span>
       </button>
     </div>
 
     <!-- SCREEN 2: QUESTION SCREEN -->
     <div id="quizScreen" class="screen">
-      <div id="questionCategory" class="question-category stadium-font">Kategorie: Kreisliga-Kult</div>
+      <div id="questionCategory" class="question-category stadium-font">Kategorie lädt...</div>
       <div id="questionText" class="question-text">Frage lädt...</div>
 
       <div id="answersGrid" class="answers-grid"></div>
@@ -615,7 +615,7 @@
       </button>
 
       <button id="replayBtn" class="btn-secondary stadium-font" style="margin-top: 10px;">
-        <span>🔄 Noch einmal spielen</span>
+        <span>🔄 Neue Runde (5 neue Fragen)</span>
       </button>
 
       <div class="upsell-box">
@@ -737,15 +737,18 @@
       document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
     });
 
-    const questions = [
+    // ================= DER GROSSE FRAGEN-POOL =================
+    const questionDatabase = [
       {
+        id: 1,
         category: "Kreisliga & Bolzplatz",
-        question: "Wie viele Spieler müssen bei Spielbeginn mindestens auf dem Feld stehen, damit ein offizielles Fußballspiel angepfiffen werden darf?",
+        question: "Wie viele Spieler müssen bei Spielbeginn mindestens auf dem Feld stehen, damit ein offizielles Spiel angepfiffen werden darf?",
         options: ["Mindestens 6 Spieler", "Mindestens 7 Spieler", "Mindestens 8 Spieler", "Mindestens 9 Spieler"],
         correct: 1,
         explanation: "Regelkunde: Laut DFB-Regeln darf eine Mannschaft das Spiel mit mindestens 7 Spielern (inkl. Torwart) beginnen oder fortsetzen."
       },
       {
+        id: 2,
         category: "Historie & Kult",
         question: "In welchem Jahr fand das legendäre DFB-Pokalfinale statt, in dem sich ein Spieler zur Verlängerung selbst einwechselte und das Siegtor schoss?",
         options: ["1969", "1973", "1977", "1982"],
@@ -753,31 +756,146 @@
         explanation: "1973 im Düsseldorfer Rheinstadion: Zur Verlängerung ging Günter Netzer zu Trainer Hennes Weisweiler und schoss Gladbach zum 2:1-Sieg gegen Köln."
       },
       {
+        id: 3,
         category: "Ruhrpott-Wissen",
-        question: "Was bedeutet das Ruhrpott-Wort 'Pöhlen' im ursprünglichen Wortsinn?",
+        question: "Was bedeutet das Ruhrpott-Wort 'Pöhlen' im traditionellen Wortsinn?",
         options: ["Bier an der Bude trinken", "Hartes Grätschen auf Asche", "Fußballspielen / Kicken auf dem Bolzplatz", "Schiedsrichter anpöbeln"],
         correct: 2,
-        explanation: "'Pöhlen' ist das klassische Ruhrpott-Synonym für das ungezwungene Kicken auf der Straße, der Wiese oder der roten Asche."
+        explanation: "'Pöhlen' ist der klassische Ruhrpott-Begriff für das ungezwungene Kicken auf der Straße, der Wiese oder der roten Asche."
       },
       {
-        category: "Kurioses",
+        id: 4,
+        category: "Kult & Kurioses",
         question: "Warum trug die deutsche Nationalmannschaft bei der WM 1954 in Bern revolutionäre Stollen an den Schuhen?",
         options: ["Sie waren aus massivem Gold", "Adi Dassler erfand Schraubstollen für den nassen Rasen", "Sie waren doppelt so lang wie erlaubt", "Sie waren mit Dämpfungskissen gefedert"],
         correct: 1,
-        explanation: "Adi Dassler rüstete die Herberger-Elf mit flexiblen Schraubstollen aus – bei einsetzendem Regen im Finale gegen Ungarn ein historischer Vorteil."
+        explanation: "Adi Dassler stattete das DFB-Team mit anpassbaren Schraubstollen aus – beim 'Fritz-Walter-Wetter' im Finale ein legendärer Vorteil."
       },
       {
+        id: 5,
         category: "Kabinengeflüster",
         question: "Was gehört traditionell in jeder echten Amateurkabine zur Grundausstattung der 'Dritten Halbzeit'?",
         options: ["Eiweißshakes und Chia-Samen", "Kasten Bier, Mettbrötchen & Fachsimpelei", "Vegane Haferriegel", "Eistonne und Yoga-Matten"],
         correct: 1,
-        explanation: "Die Dritte Halbzeit ist heilig: Auf Asche verloren, aber an der Theke wird jeder Schuss noch einmal zum Weltklassetor verklärt."
+        explanation: "Die Dritte Halbzeit ist heilig: Auf Asche verloren, aber an der Theke wird jeder Schuss noch einmal zum Weltklassetor erklärt."
+      },
+      {
+        id: 6,
+        category: "Trainer-Kult",
+        question: "Welcher legendäre Bundesliga-Trainer prägte nach einer bitteren Niederlage den unvergessenen Satz 'Lebbe geht weider'?",
+        options: ["Otto Rehhagel", "Dragoslav Stepanovic", "Giovanni Trapattoni", "Christoph Daum"],
+        correct: 1,
+        explanation: "Dragoslav 'Stepi' Stepanovic 1992 als Trainer von Eintracht Frankfurt, nachdem man am letzten Spieltag in Rostock die Meisterschaft verspielte."
+      },
+      {
+        id: 7,
+        category: "Regelkunde",
+        question: "Was passiert laut offiziellen Fußballregeln, wenn ein Spieler einen Einwurf direkt und ohne Berührung ins gegnerische Tor wirft?",
+        options: ["Tor zählt regulär", "Abstoß für die gegnerische Mannschaft", "Wiederholung des Einwurfs", "Eckball für die einwerfende Mannschaft"],
+        correct: 1,
+        explanation: "Aus einem Einwurf kann direkt kein Tor erzielt werden. Geht der Ball ohne Berührung ins gegnerische Tor, gibt es Abstoß."
+      },
+      {
+        id: 8,
+        category: "Ruhrpott-Kult",
+        question: "Welche legendäre Dortmunder BVB-Legende antwortete einst auf die Frage nach der Taktik schlicht: 'Wichtig is' auf'm Platz!'?",
+        options: ["Adi Preißler", "Timo Konietzka", "Michael Zorc", "Manfred Burgsmüller"],
+        correct: 0,
+        explanation: "Alfred 'Adi' Preißler prägte diesen Satz in den 1950er-Jahren. Bis heute das ehrlichste Fußball-Motto aller Zeiten."
+      },
+      {
+        id: 9,
+        category: "Kurioses",
+        question: "Warum pfiff Schiedsrichter Wolf-Dieter Ahlenfelder 1975 ein Bundesligaspiel bereits nach nur 32 Minuten zur Halbzeitpause ab?",
+        options: ["Flutlichtausfall", "Er hatte vor dem Spiel Bier und Kräuterschnaps getrunken", "Platzregen setzte den Rasen unter Wasser", "Er musste dringend einen Zug erwischen"],
+        correct: 1,
+        explanation: "Kult-Schiri Ahlenfelder hatte vor der Partie Werder Bremen gegen Hannover etwas zu tief ins Glas geschaut und verwechselte die Zeit."
+      },
+      {
+        id: 10,
+        category: "Regelkunde",
+        question: "Darf der Torwart den Ball mit der Hand aufnehmen, wenn ein Mitspieler ihm den Ball absichtlich mit dem KOPF zurückspielt?",
+        options: ["Nein, das ist verbotener Rückpass", "Ja, Kopf-Rückpässe dürfen aufgenommen werden", "Nur außerhalb des Fünfmeterraums", "Nur wenn der Ball vorher den Boden berührt"],
+        correct: 1,
+        explanation: "Die Rückpassregel greift nur bei gezielten Rückpässen mit dem Fuß oder Bein. Ein regulärer Kopf- oder Brust-Rückpass darf aufgenommen werden."
+      },
+      {
+        id: 11,
+        category: "Zitate-Klassiker",
+        question: "Welcher deutsche Nationalspieler sagte einst philosophisch: 'Ich hatte vom Feeling her ein gutes Gefühl'?",
+        options: ["Lothar Matthäus", "Andreas Möller", "Mario Basler", "Jürgen Klinsmann"],
+        correct: 1,
+        explanation: "Andreas Möller lieferte dieses Jahrhundert-Zitat – Grammatik zweitrangig, das Gefühl stimmte!"
+      },
+      {
+        id: 12,
+        category: "Bolzplatz-Folklore",
+        question: "Wie nennt man im Ruhrgebiet die berühmt-berüchtigte Wunde, die man nach einer beherzten Grätsche auf roter Asche wochenlang mit sich trägt?",
+        options: ["Aschebrand / Asche-Kratzer", "Pott-Tattoo", "Rostblüte", "Schlacke-Pflaster"],
+        correct: 0,
+        explanation: "Wer auf Asche groß geworden ist, kennt den Aschebrand: Die rote Tennen-Erde wäscht man noch drei Wochen später unter der Dusche aus den Knien."
+      },
+      {
+        id: 13,
+        category: "Historie",
+        question: "Wer erzielte 1963 das allererste Tor in der neu gegründeten deutschen Fußball-Bundesliga (nach nur 58 Sekunden)?",
+        options: ["Gerd Müller", "Timo Konietzka", "Uwe Seeler", "Charly Dörfel"],
+        correct: 1,
+        explanation: "Friedhelm 'Timo' Konietzka traf am 24. August 1963 für Borussia Dortmund bei Werder Bremen nach nicht einmal einer Minute."
+      },
+      {
+        id: 14,
+        category: "Stadion-Kult",
+        question: "Welches Ruhrpott-Stadion wird wegen seiner markanten Architektur und Nähe zum Rasen traditionell 'Flutlicht-Kathedrale' genannt?",
+        options: ["Ruhrstadion an der Castroper Straße (Bochum)", "Westfalenstadion (Dortmund)", "Parkstadion (Gelsenkirchen)", "Wedau-Stadion (Duisburg)"],
+        correct: 0,
+        explanation: "Das Vonovia Ruhrstadion an der Castroper Straße in Bochum gilt vielen Fußball-Romantikern als Inbegriff des echten, ehrlichen Ruhrgebiets-Stadions."
+      },
+      {
+        id: 15,
+        category: "Bundesliga-Kult",
+        question: "Was antwortete Mario Basler einst auf die Frage, was er nach einem anstrengenden Spiel für seine Regeneration tut?",
+        options: ["Zwei Stunden Kältekammer", "Eine Weizenkaltschale und eine Zigarette", "Drei Teller rohe Haferflocken", "Zehn Kilometer Auslaufen im Wald"],
+        correct: 1,
+        explanation: "Mario Basler war der Inbegriff des alten Freigeists: 'Ich habe noch nie eine Kältekammer von innen gesehen. Ein Bier und eine Kippe haben immer gereicht.'"
+      },
+      {
+        id: 16,
+        category: "Kult-Regeln",
+        question: "Welche Farbe hatte die allererste Rote Karte, die in der Geschichte der Bundesliga je gezeigt wurde?",
+        options: ["Rot (Lothar Kobluhn 1970)", "Weiß (früher gab es weiße Karten)", "Blau (wie im Hallenfußball)", "Gelb mit rotem Punkt"],
+        correct: 0,
+        explanation: "Rote Karten wurden zur Saison 1970/71 eingeführt. Der Oberhausener Lothar Kobluhn sah am 10. Oktober 1970 das erste Mal Rot in der Liga-Geschichte."
       }
     ];
 
+    document.getElementById('poolCountStat').textContent = questionDatabase.length;
+
+    const QUESTIONS_PER_ROUND = 5;
+    let roundQuestions = [];
     let currentQuestionIndex = 0;
     let score = 0;
     let answered = false;
+    let playedQuestionIds = [];
+
+    function pickQuestionsForRound() {
+      let availableQuestions = questionDatabase.filter(q => !playedQuestionIds.includes(q.id));
+
+      if (availableQuestions.length < QUESTIONS_PER_ROUND) {
+        playedQuestionIds = [];
+        availableQuestions = [...questionDatabase];
+      }
+
+      const shuffled = [...availableQuestions];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      const selected = shuffled.slice(0, QUESTIONS_PER_ROUND);
+      selected.forEach(q => playedQuestionIds.push(q.id));
+      return selected;
+    }
 
     const startScreen = document.getElementById('startScreen');
     const quizScreen = document.getElementById('quizScreen');
@@ -798,6 +916,7 @@
 
     function startQuiz() {
       playSound('whistle');
+      roundQuestions = pickQuestionsForRound();
       currentQuestionIndex = 0;
       score = 0;
       answered = false;
@@ -812,9 +931,9 @@
 
     function renderQuestion() {
       answered = false;
-      const q = questions[currentQuestionIndex];
+      const q = roundQuestions[currentQuestionIndex];
 
-      const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+      const progressPercent = (currentQuestionIndex / QUESTIONS_PER_ROUND) * 100;
       progressBar.style.width = `${progressPercent}%`;
 
       questionCategoryEl.textContent = `Kategorie: ${q.category}`;
@@ -842,7 +961,7 @@
       if (answered) return;
       answered = true;
 
-      const q = questions[currentQuestionIndex];
+      const q = roundQuestions[currentQuestionIndex];
       const buttons = answersGridEl.querySelectorAll('.answer-btn');
       buttons.forEach(b => b.disabled = true);
 
@@ -860,7 +979,7 @@
       explanationBoxEl.classList.add('visible');
 
       nextBtn.style.display = 'flex';
-      if (currentQuestionIndex === questions.length - 1) {
+      if (currentQuestionIndex === QUESTIONS_PER_ROUND - 1) {
         nextBtn.innerHTML = '<span>Zur Auswertung</span> <span>🏆</span>';
       } else {
         nextBtn.innerHTML = '<span>Nächste Frage</span> <span>➔</span>';
@@ -870,7 +989,7 @@
     function nextQuestion() {
       playSound('click');
       currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) {
+      if (currentQuestionIndex < QUESTIONS_PER_ROUND) {
         renderQuestion();
       } else {
         showResults();
@@ -905,7 +1024,7 @@
       }
 
       const shareText = encodeURIComponent(
-        `Ich habe im Pöhler & Poeten Quiz ${score}/5 Punkte geholt! ⚽🍺 Zeig mal, ob du mehr Ahnung hast als der Trainer: https://poehlerundpoeten.de`
+        `Ich habe im Pöhler & Poeten Quiz ${score}/5 Punkte geholt! ⚽🍺 Zeig mal, ob du mehr Ahnung hast als der Trainer: https://quiz.poehlerundpoeten.de`
       );
       document.getElementById('whatsappShareBtn').onclick = () => {
         window.open(`https://api.whatsapp.com/send?text=${shareText}`, '_blank');
